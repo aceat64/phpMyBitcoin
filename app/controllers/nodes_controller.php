@@ -14,7 +14,7 @@ class NodesController extends AppController {
 		$nodes = $this->paginate();
 		foreach($nodes as &$node) {
 			$node['Node']['status'] = 'online';
-			if(strtotime($node['Node']['last_update']) < time() - 60) {
+			if(strtotime($node['Node']['last_update']) < time() - 30) {
 				try {
 					$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
 					$info = $bitcoin->getinfo();
@@ -24,8 +24,8 @@ class NodesController extends AppController {
 					$node['Node']['generate'] = $info['generate'];
 					//$node['Node']['genproclimit'] = $info['genproclimit'];
 					//$node['Node']['difficulty'] = $info['difficulty'];
-					if(isset($info['KHPS'])) {
-						$node['Node']['khps'] = $info['KHPS'];
+					if(isset($info['hashespersec'])) {
+						$node['Node']['khps'] = $info['hashespersec'] / 1000;
 					} else {
 						$node['Node']['khps'] = NULL;
 					}
@@ -74,8 +74,8 @@ class NodesController extends AppController {
 			$node['Node']['generate'] = $info['generate'];
 			$node['Node']['genproclimit'] = $info['genproclimit'];
 			$node['Node']['difficulty'] = $info['difficulty'];
-			if(isset($info['KHPS'])) {
-				$node['Node']['khps'] = $info['KHPS'];
+			if(isset($info['hashespersec'])) {
+				$node['Node']['khps'] = $info['hashespersec'] / 1000;
 			} else {
 				$node['Node']['khps'] = NULL;
 			}
@@ -132,9 +132,9 @@ class NodesController extends AppController {
 					}
 				}
 
-				$orderby = "confirmations"; //change this to whatever key you want from the array
+				$orderby = "tx_time"; //change this to whatever key you want from the array
 
-				array_multisort($sortArray[$orderby],SORT_ASC,$transactions);
+				array_multisort($sortArray[$orderby],SORT_DESC,$transactions);
 			}
 		} catch (Exception $e) {
 			$transactions = NULL;

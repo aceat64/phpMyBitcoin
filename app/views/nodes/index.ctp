@@ -30,7 +30,7 @@
 		<?php else: ?>
 		<td>False&nbsp;</td>
 		<?php endif; ?>
-		<td><?php echo $node['Node']['khps']; ?>&nbsp;</td>
+		<td><?php echo $number->precision($node['Node']['khps'],0); ?>&nbsp;</td>
 		<td><?php echo $node['Node']['pending_blocks']; ?>&nbsp;</td>
 		<td><?php echo $node['Node']['generated_blocks']; ?>&nbsp;</td>
 		<td><?php echo $time->timeAgoInWords($node['Node']['last_update']); ?>&nbsp;</td>

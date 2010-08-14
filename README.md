@@ -6,9 +6,10 @@ Installation
 1. Download the entire project, unzip/untar it and upload to your server
 2. Create a MySQL database and user
 3. Modify the app/config/database.php file and put in the database name, username and password
-4. Modify the app/config/core.php file and replace the default Security.salt and Security.cipherSeed values
-5. Login to with the user "admin" and password "password".
-6. Change the admin password or create a new user then delete the admin user.
+4. Import the basic MySQL database from the file app/config/schema/database.sql
+5. Modify the app/config/core.php file and replace the default Security.salt and Security.cipherSeed values
+6. Login to with the user "admin" and password "password". (THIS DOES NOT WORK AT THE MOMENT)
+7. Change the admin password or create a new user then delete the admin user.
 
 License
 -------

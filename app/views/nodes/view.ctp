@@ -72,7 +72,7 @@
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Khps'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php echo $node['Node']['khps']; ?>
+			<?php echo $number->precision($node['Node']['khps'],0); ?>
 			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Pending Blocks'); ?></dt>
@@ -127,9 +127,10 @@
 			<table cellpadding="0" cellspacing="0">
 				<tr>
 					<th>Status</th>
-					<th>Label</th>
-					<th>Category</th>
-					<th>Amount</th>
+					<th>Date</th>
+					<th>Description</th>
+					<th>Debit</th>
+					<th>Credit</th>
 				</tr>
 			<?php foreach($transactions as $transaction): ?>
 				<tr>
@@ -138,13 +139,45 @@
 					<?php else: ?>
 					<td><span class="help" title="Txn ID: <?php echo $transaction['txn_id']; ?>"><?php echo $transaction['confirmations']; ?> confirmations</span></td>
 					<?php endif; ?>
+					<td><?php echo $time->nice($transaction['tx_time']); ?></td>
+
+					<?php if($transaction['category'] == 'debit'): ?>
+
 					<?php if(empty($transaction['label'])): ?>
-					<td><span style="font-style:italic" class="help" title="Address: <?php echo $transaction['address']; ?>">none</span></td>
+					<td>To: <span style="font-style:italic" class="help" title="Address: <?php echo $transaction['address']; ?>">unknown</span></td>
 					<?php else: ?>
-					<td><span style="font-style:italic" class="help" title="Address: <?php echo $transaction['address']; ?>"><?php echo $transaction['label']; ?></span></td>
+					<td>To: <span class="help" title="Address: <?php echo $transaction['address']; ?>"><?php echo $transaction['label']; ?></span></td>
 					<?php endif; ?>
-					<td><?php echo r('_',' ',$transaction['category']); ?></td>
-					<td><?php echo $number->precision($transaction['amount'],2); ?></td>
+					<td>-<?php echo $number->precision($transaction['amount'],2); ?></td>
+					<td>&nbsp;</td>
+
+					<?php elseif($transaction['category'] == 'credit'): ?>
+
+					<?php if(empty($transaction['label'])): ?>
+					<td>From: unknown, Received with: <span style="font-style:italic" class="help" title="Address: <?php echo $transaction['address']; ?>">no label</span></td>
+					<?php else: ?>
+					<td>From: unknown, Received with: <span class="help" title="Address: <?php echo $transaction['address']; ?>"><?php echo $transaction['label']; ?></span></td>
+					<?php endif; ?>
+					<td>&nbsp;</td>
+					<td>+<?php echo $number->precision($transaction['amount'],2); ?></td>
+
+					<?php elseif($transaction['category'] == 'mixed_debit'): ?>
+
+					<td>Generated, pending</td>
+					<td>&nbsp;</td>
+					<td>+<?php echo $number->precision($transaction['amount'],2); ?></td>
+
+					<?php elseif($transaction['category'] == 'generated'): ?>
+
+					<td>Generated</td>
+					<td>&nbsp;</td>
+					<td>+<?php echo $number->precision($transaction['amount'],2); ?></td>
+
+					<?php else: ?>
+
+					<td colspan="2"><?php echo $transaction['category']; ?> <?php echo $number->precision($transaction['amount'],2); ?></td>
+
+					<?php endif; ?>
 				</tr>
 			<?php endforeach; ?>
 			</table>
