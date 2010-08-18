@@ -8,6 +8,7 @@ class Node extends AppModel {
 		'change' => 'list', // options are 'list' or 'full'
 		'description_ids' => TRUE // options are TRUE or FALSE
 	));
+	var $hasMany = array('Log');
 	var $validate = array(
 		'name' => array(
 			'notempty' => array(

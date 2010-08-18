@@ -1,7 +1,6 @@
 TODO List
 =========
  * Add an ACL (Access Control List)
- * Ability to view logging
  * Statistics for the network as a whole
  * Better support for mobile devices (iPhone, Android, etc)
  * Write a basic installer
@@ -14,6 +13,7 @@ TODO List
  * A good design, instead of cakephp's default layout/stylesheet
  * Add per user settings for number of nodes per page
  * Add global setting option for socket timeout
+ * Show totals for node balances, khps, pending and generated blocks
 
 Things bitcoin's JSON-RPC needs to support
 ------------------------------------------

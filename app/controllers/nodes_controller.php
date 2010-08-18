@@ -8,6 +8,7 @@ class NodesController extends AppController {
 	function beforeFilter() {
 		parent::beforeFilter();
 		include_once(VENDORS . 'jsonRPCClient.php');
+		$this->Node->recursive = 0;
 	}
 
 	function index() {
@@ -42,34 +43,33 @@ class NodesController extends AppController {
 					$node['Node']['status'] = $e->getMessage();
 				}
 
-				try {
-					// we can't just count() because that will include blocks that are not accepted
-					$pending_blocks = $bitcoin->listgenerated(TRUE);
-					$node['Node']['pending_blocks'] = 0;
-					foreach($pending_blocks as $block) {
-						if($block['accepted']) {
-							$node['Node']['pending_blocks']++;
-						}
-					}
-				} catch (Exception $e) {
-					$node['Node']['pending_blocks'] = NULL;
-				}
-
-				try {
-					// we can't just count() because that will include blocks that are not accepted
-					$generated_blocks = $bitcoin->listgenerated();
-					$node['Node']['generated_blocks'] = 0;
-					foreach($generated_blocks as $block) {
-						if($block['accepted']) {
-							$node['Node']['generated_blocks']++;
-						}
-					}
-				} catch (Exception $e) {
-					$node['Node']['generated_blocks'] = NULL;
-				}
-
-				// If the node is online, lets update the MySQL entry
 				if($node['Node']['status'] == 'online') {
+					try {
+						// we can't just count() because that will include blocks that are not accepted
+						$pending_blocks = $bitcoin->listgenerated(TRUE);
+						$node['Node']['pending_blocks'] = 0;
+						foreach($pending_blocks as $block) {
+							if($block['accepted']) {
+								$node['Node']['pending_blocks']++;
+							}
+						}
+					} catch (Exception $e) {
+						$node['Node']['pending_blocks'] = NULL;
+					}
+
+					try {
+						// we can't just count() because that will include blocks that are not accepted
+						$generated_blocks = $bitcoin->listgenerated();
+						$node['Node']['generated_blocks'] = 0;
+						foreach($generated_blocks as $block) {
+							if($block['accepted']) {
+								$node['Node']['generated_blocks']++;
+							}
+						}
+					} catch (Exception $e) {
+						$node['Node']['generated_blocks'] = NULL;
+					}
+
 					// Detach LogableBehavior so the log file doesn't get filled with node updates/refreshes
 					$this->Node->Behaviors->detach('Logable');
 					$this->Node->save($node);
@@ -82,9 +82,13 @@ class NodesController extends AppController {
 	function view($id = null) {
 		if (!$id) {
 			$this->Session->setFlash(__('Invalid node', true));
-			$this->redirect(array('action' => 'index'));
+			$this->redirect($this->referer());
 		}
 		$node = $this->Node->read(null, $id);
+		if(empty($node)) {
+			$this->Session->setFlash(__('Invalid node', true));
+			$this->redirect($this->referer());
+		}
 
 		$node['Node']['status'] = 'online';
 
@@ -114,63 +118,76 @@ class NodesController extends AppController {
 			$node['Node']['status'] = $e->getMessage();
 		}
 
-		try {
-			// we can't just count() because that will include blocks that are not accepted
-			$pending_blocks = $bitcoin->listgenerated(TRUE);
-			$node['Node']['pending_blocks'] = 0;
-			foreach($pending_blocks as $block) {
-				if($block['accepted']) {
-					$node['Node']['pending_blocks']++;
-				}
-			}
-		} catch (Exception $e) {
-			$node['Node']['pending_blocks'] = NULL;
-		}
-
-		try {
-			// we can't just count() because that will include blocks that are not accepted
-			$generated_blocks = $bitcoin->listgenerated();
-			$node['Node']['generated_blocks'] = 0;
-			foreach($generated_blocks as $block) {
-				if($block['accepted']) {
-					$node['Node']['generated_blocks']++;
-				}
-			}
-		} catch (Exception $e) {
-			$node['Node']['generated_blocks'] = NULL;
-			$blocks = NULL;
-		}
-
-		try {
-			$transactions = $bitcoin->listtransactions(100,0,TRUE);
-			if(count($transactions)) {
-				// sorting $transactions may not be necessary, it looks like listtransactions is already sorted based on # of confirmations
-				$sortArray = array(); 
-
-				foreach($transactions as $transaction){
-					foreach($transaction as $key=>$value){
-						if(!isset($sortArray[$key])){
-							$sortArray[$key] = array();
-						}
-						$sortArray[$key][] = $value;
+		if($node['Node']['status'] == 'online') {
+			try {
+				// we can't just count() because that will include blocks that are not accepted
+				$pending_blocks = $bitcoin->listgenerated(TRUE);
+				$node['Node']['pending_blocks'] = 0;
+				foreach($pending_blocks as $block) {
+					if($block['accepted']) {
+						$node['Node']['pending_blocks']++;
 					}
 				}
-
-				$orderby = "txtime"; //change this to whatever key you want from the array
-
-				array_multisort($sortArray[$orderby],SORT_DESC,$transactions);
+			} catch (Exception $e) {
+				$node['Node']['pending_blocks'] = NULL;
 			}
-		} catch (Exception $e) {
-			$transactions = NULL;
-		}
 
-		// If the node is online, lets update the MySQL entry
-		if($node['Node']['status'] == 'online') {
+			try {
+				// we can't just count() because that will include blocks that are not accepted
+				$generated_blocks = $bitcoin->listgenerated();
+				$node['Node']['generated_blocks'] = 0;
+				foreach($generated_blocks as $block) {
+					if($block['accepted']) {
+						$node['Node']['generated_blocks']++;
+					}
+				}
+			} catch (Exception $e) {
+				$node['Node']['generated_blocks'] = NULL;
+				$blocks = NULL;
+			}
+
+			try {
+				$transactions = $bitcoin->listtransactions(100,0,TRUE);
+				if(count($transactions)) {
+					// sorting $transactions may not be necessary, it looks like listtransactions is already sorted based on # of confirmations
+					$sortArray = array(); 
+	
+					foreach($transactions as $transaction){
+						foreach($transaction as $key=>$value){
+							if(!isset($sortArray[$key])){
+								$sortArray[$key] = array();
+							}
+							$sortArray[$key][] = $value;
+						}
+					}
+
+					$orderby = "txtime"; //change this to whatever key you want from the array
+
+					array_multisort($sortArray[$orderby],SORT_DESC,$transactions);
+				}
+			} catch (Exception $e) {
+				$transactions = NULL;
+			}
+
 			// Detach LogableBehavior so the log file doesn't get filled with node updates/refreshes
 			$this->Node->Behaviors->detach('Logable');
 			$this->Node->save($node);
 		}
 		$this->set(compact('node', 'transactions'));
+	}
+
+	function showlog($id = null) {
+		if (!$id) {
+			$this->Session->setFlash(__('Invalid node', true));
+			$this->redirect($this->referer());
+		}
+		$node = $this->Node->read(null, $id);
+		$logs = $this->paginate('Log',array('model'=>'Node','model_id'=>$id));
+		if(empty($node)) {
+			$this->Session->setFlash(__('Invalid node', true));
+			$this->redirect($this->referer());
+		}
+		$this->set(compact('node','logs'));
 	}
 
 	function add() {
@@ -191,6 +208,11 @@ class NodesController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		$node = $this->Node->read(null, $id);
+		if(empty($node)) {
+			$this->Session->setFlash(__('Invalid node', true));
+			$this->redirect($this->referer());
+		}
+
 		if (!empty($this->data)) {
 			if(empty($this->data['Node']['password'])) {
 				$this->data['Node']['password'] = $node['Node']['password'];
@@ -238,5 +260,6 @@ class NodesController extends AppController {
 		}
 		$this->set('node', $node);
 	}
+
 }
 ?>

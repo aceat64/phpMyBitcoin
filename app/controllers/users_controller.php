@@ -7,6 +7,7 @@ class UsersController extends AppController {
 		parent::beforeFilter();
 		// On successful login redirect the user to the 'logLogin' action
 		$this->Auth->loginRedirect = array('action' => 'logLogin');
+		$this->User->recursive = 0;
 	}
 
 	/**
@@ -41,9 +42,15 @@ class UsersController extends AppController {
 	function view($id = null) {
 		if (!$id) {
 			$this->Session->setFlash(__('Invalid user', true));
-			$this->redirect(array('action' => 'index'));
+			$this->redirect($this->referer());
 		}
-		$this->set('user', $this->User->read(null, $id));
+		$user = $this->User->read(null, $id);
+		$logs = $this->paginate('Log',array('user_id'=>$user['User']['id']));
+		if(empty($user)) {
+			$this->Session->setFlash(__('Invalid user', true));
+			$this->redirect($this->referer());
+		}
+		$this->set(compact('user','logs'));
 	}
 
 	function add() {
@@ -72,7 +79,12 @@ class UsersController extends AppController {
 			}
 		}
 		if (empty($this->data)) {
-			$this->data = $this->User->read(null, $id);
+			$user = $this->User->read(null, $id);
+			if(empty($user)) {
+				$this->Session->setFlash(__('Invalid user', true));
+				$this->redirect($this->referer());
+			}
+			$this->data = $user;
 		}
 	}
 
