@@ -16,7 +16,7 @@
 			<?php echo $node['Node']['port']; ?>
 			&nbsp;
 		</dd>
-		<?php if(!empty($node['Node']['proxy'])): ?>
+		<?php if(!empty($node['Node']['uri'])): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Uri'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $node['Node']['uri']; ?>
@@ -35,6 +35,7 @@
 			<?php echo $node['Node']['username']; ?>
 			&nbsp;
 		</dd>
+		<?php if($node['Node']['status'] == 'online'): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Balance'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $number->precision($node['Node']['balance'],2); ?>
@@ -43,6 +44,20 @@
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Blocks'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $node['Node']['blocks']; ?>
+			&nbsp;
+		</dd>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Connections'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php echo $node['Node']['connections']; ?>
+			&nbsp;
+		</dd>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Version'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php if($node['Node']['version'] === NULL): ?>
+			n/a
+			<?php else: ?>
+			<?php echo $node['Node']['version']; ?>
+			<?php endif; ?>
 			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Generate'); ?></dt>
@@ -72,55 +87,40 @@
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Khps'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php if($node['Node']['khps'] === NULL): ?>
+			n/a
+			<?php else: ?>
 			<?php echo $number->precision($node['Node']['khps'],0); ?>
+			<?php endif; ?>
 			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Pending Blocks'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php if($node['Node']['pending_blocks'] === NULL): ?>
+			n/a
+			<?php else: ?>
 			<?php echo $node['Node']['pending_blocks']; ?>
+			<?php endif; ?>
 			&nbsp;
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Generated Blocks'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php if($node['Node']['generated_blocks'] === NULL): ?>
+			n/a
+			<?php else: ?>
 			<?php echo $node['Node']['generated_blocks']; ?>
+			<?php endif; ?>
 			&nbsp;
 		</dd>
-	</dl>
-
-	<div class="blocks">
-		<h3><?php __('Blocks'); ?></h3>
-		<?php if(isset($blocks) && count($blocks) > 0): ?>
-			<table cellpadding="0" cellspacing="0">
-				<tr>
-					<th>Status</th>
-					<th>Date</th>
-					<th>Description</th>
-					<th>Value</th>
-				</tr>
-			<?php foreach($blocks as $block): ?>
-				<tr>
-					<?php if($block['confirmations'] < 6): ?>
-					<td><?php echo $block['confirmations']; ?>/unconfirmed</td>
-					<?php else: ?>
-					<td><?php echo $block['confirmations']; ?> confirmations</td>
-					<?php endif; ?>
-					<td><?php echo $time->nice($block['genTime']); ?></td>
-					<?php if($block['accepted'] == 1 && $block['maturesIn'] != 0): ?>
-					<td>Accepted, matures in <?php echo $block['maturesIn']; ?> block(s)</td>
-					<?php elseif($block['accepted'] != 1): ?>
-					<td>No accepted, sorry :(</td>
-					<?php else: ?>
-					<td>Generated</td>
-					<?php endif; ?>
-					<td><?php echo $number->precision($block['value'],2); ?></td>
-				</tr>
-			<?php endforeach; ?>
-			</table>
 		<?php else: ?>
-			<p>This node has not generated any blocks yet.</p>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Status'); ?></dt>
+		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
+			<?php echo $node['Node']['status']; ?>
+			&nbsp;
+		</dd>
 		<?php endif; ?>
-	</div>
-
+	</dl>
+	<?php if($node['Node']['status'] == 'online'): ?>
 	<div class="transactions">
 		<h3><?php __('Transactions'); ?></h3>
 		<?php if(isset($transactions) && count($transactions) > 0): ?>
@@ -135,11 +135,11 @@
 			<?php foreach($transactions as $transaction): ?>
 				<tr>
 					<?php if($transaction['confirmations'] < 6): ?>
-					<td><span class="help" title="Txn ID: <?php echo $transaction['txn_id']; ?>"><?php echo $transaction['confirmations']; ?>/unconfirmed</span></td>
+					<td><span class="help" title="Tx ID: <?php echo $transaction['txid']; ?>"><?php echo $transaction['confirmations']; ?>/unconfirmed</span></td>
 					<?php else: ?>
-					<td><span class="help" title="Txn ID: <?php echo $transaction['txn_id']; ?>"><?php echo $transaction['confirmations']; ?> confirmations</span></td>
+					<td><span class="help" title="Tx ID: <?php echo $transaction['txid']; ?>"><?php echo $transaction['confirmations']; ?> confirmations</span></td>
 					<?php endif; ?>
-					<td><?php echo $time->nice($transaction['tx_time']); ?></td>
+					<td><?php echo $time->nice($transaction['txtime']); ?></td>
 
 					<?php if($transaction['category'] == 'debit'): ?>
 
@@ -163,7 +163,7 @@
 
 					<?php elseif($transaction['category'] == 'mixed_debit'): ?>
 
-					<td>Generated, pending</td>
+					<td>Generated, matures in <?php echo 120 - $transaction['confirmations']; ?> more blocks</td>
 					<td>&nbsp;</td>
 					<td>+<?php echo $number->precision($transaction['amount'],2); ?></td>
 
@@ -181,10 +181,13 @@
 				</tr>
 			<?php endforeach; ?>
 			</table>
+		<?php elseif($transactions === NULL): ?>
+			<p>This node does not support viewing transactions.</p>
 		<?php else: ?>
 			<p>This node has no transactions yet.</p>
 		<?php endif; ?>
 	</div>
+	<?php endif; ?>
 </div>
 
 <div class="actions">

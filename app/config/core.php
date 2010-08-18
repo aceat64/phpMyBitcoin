@@ -33,7 +33,7 @@
  * In production mode, flash messages redirect after a time interval.
  * In development mode, you need to click the flash message to continue.
  */
-	Configure::write('debug', 0);
+	Configure::write('debug', 2);
 
 /**
  * CakePHP Log Level:
@@ -124,7 +124,7 @@
  * the cake shell command: cake schema run create Sessions
  *
  */
-	Configure::write('Session.save', 'php');
+	Configure::write('Session.save', 'database');
 
 /**
  * The model name to be used for the session model.
@@ -133,7 +133,7 @@
  *
  * The model name set here should *not* be used elsewhere in your application.
  */
-	//Configure::write('Session.model', 'Session');
+	Configure::write('Session.model', 'Session');
 
 /**
  * The name of the table used to store CakePHP database sessions.
@@ -147,14 +147,14 @@
  *
  * [Note: Session.table is deprecated as of CakePHP 1.3]
  */
-	//Configure::write('Session.table', 'cake_sessions');
+	Configure::write('Session.table', 'cake_sessions');
 
 /**
  * The DATABASE_CONFIG::$var to use for database session handling.
  *
  * 'Session.save' must be set to 'database' in order to utilize this constant.
  */
-	//Configure::write('Session.database', 'default');
+	Configure::write('Session.database', 'default');
 
 /**
  * The name of CakePHP's session cookie.
@@ -200,12 +200,12 @@
 /**
  * A random string used in security hashing methods.
  */
-	Configure::write('Security.salt', 'DYhG93b0qyJfIxfs2guVoUubWwvniR2G0FgaC9mi');
+	Configure::write('Security.salt', 's6L9sp372RlU8hle8lEcRoablApLUtRlanO3vO3br5aGI8PLacoAHLEswOefrLez');
 
 /**
  * A random numeric string (digits only) used to encrypt/decrypt strings.
  */
-	Configure::write('Security.cipherSeed', '76859309657453542496749683645');
+	Configure::write('Security.cipherSeed', '56406840350678434503403134840305435430453038435103');
 
 /**
  * Apply timestamps with the last modified time to static assets (js, css, images).

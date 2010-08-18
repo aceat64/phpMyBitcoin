@@ -6,6 +6,7 @@ class NodesController extends AppController {
 	var $helpers = array('Time','Number');
 
 	function beforeFilter() {
+		parent::beforeFilter();
 		include_once(VENDORS . 'jsonRPCClient.php');
 	}
 
@@ -18,8 +19,14 @@ class NodesController extends AppController {
 				try {
 					$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
 					$info = $bitcoin->getinfo();
+					if(isset($info['version'])) {
+						$node['Node']['version'] = $info['version'];
+					} else {
+						$node['Node']['version'] = NULL;
+					}
 					$node['Node']['balance'] = $info['balance'];
 					$node['Node']['blocks'] = $info['blocks'];
+					$node['Node']['connections'] = $info['connections'];
 					//$node['Node']['proxy'] = $info['proxy'];
 					$node['Node']['generate'] = $info['generate'];
 					//$node['Node']['genproclimit'] = $info['genproclimit'];
@@ -36,19 +43,35 @@ class NodesController extends AppController {
 				}
 
 				try {
-					$node['Node']['pending_blocks'] = count($bitcoin->listgenerated(TRUE));
+					// we can't just count() because that will include blocks that are not accepted
+					$pending_blocks = $bitcoin->listgenerated(TRUE);
+					$node['Node']['pending_blocks'] = 0;
+					foreach($pending_blocks as $block) {
+						if($block['accepted']) {
+							$node['Node']['pending_blocks']++;
+						}
+					}
 				} catch (Exception $e) {
 					$node['Node']['pending_blocks'] = NULL;
 				}
 
 				try {
-					$node['Node']['generated_blocks'] = count($bitcoin->listgenerated());
+					// we can't just count() because that will include blocks that are not accepted
+					$generated_blocks = $bitcoin->listgenerated();
+					$node['Node']['generated_blocks'] = 0;
+					foreach($generated_blocks as $block) {
+						if($block['accepted']) {
+							$node['Node']['generated_blocks']++;
+						}
+					}
 				} catch (Exception $e) {
 					$node['Node']['generated_blocks'] = NULL;
 				}
 
 				// If the node is online, lets update the MySQL entry
 				if($node['Node']['status'] == 'online') {
+					// Detach LogableBehavior so the log file doesn't get filled with node updates/refreshes
+					$this->Node->Behaviors->detach('Logable');
 					$this->Node->save($node);
 				}
 			}
@@ -68,8 +91,14 @@ class NodesController extends AppController {
 		try {
 			$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
 			$info = $bitcoin->getinfo();
+			if(isset($info['version'])) {
+				$node['Node']['version'] = $info['version'];
+			} else {
+				$node['Node']['version'] = NULL;
+			}
 			$node['Node']['balance'] = $info['balance'];
 			$node['Node']['blocks'] = $info['blocks'];
+			$node['Node']['connections'] = $info['connections'];
 			$node['Node']['proxy'] = $info['proxy'];
 			$node['Node']['generate'] = $info['generate'];
 			$node['Node']['genproclimit'] = $info['genproclimit'];
@@ -86,30 +115,26 @@ class NodesController extends AppController {
 		}
 
 		try {
-			$node['Node']['pending_blocks'] = count($bitcoin->listgenerated(TRUE));
+			// we can't just count() because that will include blocks that are not accepted
+			$pending_blocks = $bitcoin->listgenerated(TRUE);
+			$node['Node']['pending_blocks'] = 0;
+			foreach($pending_blocks as $block) {
+				if($block['accepted']) {
+					$node['Node']['pending_blocks']++;
+				}
+			}
 		} catch (Exception $e) {
 			$node['Node']['pending_blocks'] = NULL;
 		}
 
 		try {
-			$blocks = $bitcoin->listgenerated();
-			$node['Node']['generated_blocks'] = count($blocks);
-
-			if($node['Node']['generated_blocks'] != 0) {
-				$sortArray = array(); 
-
-				foreach($blocks as $block){
-					foreach($block as $key=>$value){
-						if(!isset($sortArray[$key])){
-							$sortArray[$key] = array();
-						}
-						$sortArray[$key][] = $value;
-					}
+			// we can't just count() because that will include blocks that are not accepted
+			$generated_blocks = $bitcoin->listgenerated();
+			$node['Node']['generated_blocks'] = 0;
+			foreach($generated_blocks as $block) {
+				if($block['accepted']) {
+					$node['Node']['generated_blocks']++;
 				}
-
-				$orderby = "genTime"; //change this to whatever key you want from the array
-
-				array_multisort($sortArray[$orderby],SORT_DESC,$blocks);
 			}
 		} catch (Exception $e) {
 			$node['Node']['generated_blocks'] = NULL;
@@ -118,7 +143,6 @@ class NodesController extends AppController {
 
 		try {
 			$transactions = $bitcoin->listtransactions(100,0,TRUE);
-
 			if(count($transactions)) {
 				// sorting $transactions may not be necessary, it looks like listtransactions is already sorted based on # of confirmations
 				$sortArray = array(); 
@@ -132,7 +156,7 @@ class NodesController extends AppController {
 					}
 				}
 
-				$orderby = "tx_time"; //change this to whatever key you want from the array
+				$orderby = "txtime"; //change this to whatever key you want from the array
 
 				array_multisort($sortArray[$orderby],SORT_DESC,$transactions);
 			}
@@ -142,10 +166,11 @@ class NodesController extends AppController {
 
 		// If the node is online, lets update the MySQL entry
 		if($node['Node']['status'] == 'online') {
+			// Detach LogableBehavior so the log file doesn't get filled with node updates/refreshes
+			$this->Node->Behaviors->detach('Logable');
 			$this->Node->save($node);
 		}
-
-		$this->set(compact('node', 'blocks', 'transactions'));
+		$this->set(compact('node', 'transactions'));
 	}
 
 	function add() {
@@ -165,7 +190,11 @@ class NodesController extends AppController {
 			$this->Session->setFlash(__('Invalid node', true));
 			$this->redirect(array('action' => 'index'));
 		}
+		$node = $this->Node->read(null, $id);
 		if (!empty($this->data)) {
+			if(empty($this->data['Node']['password'])) {
+				$this->data['Node']['password'] = $node['Node']['password'];
+			}
 			if ($this->Node->save($this->data)) {
 				$this->Session->setFlash(__('The node has been saved', true));
 				$this->redirect(array('action' => 'index'));
@@ -174,8 +203,9 @@ class NodesController extends AppController {
 			}
 		}
 		if (empty($this->data)) {
-			$this->data = $this->Node->read(null, $id);
+			$this->data = $node;
 		}
+		$this->set('node', $node);
 	}
 
 	function delete($id = null) {
@@ -189,6 +219,24 @@ class NodesController extends AppController {
 		}
 		$this->Session->setFlash(__('Node was not deleted', true));
 		$this->redirect(array('action' => 'index'));
+	}
+
+	function send($id = null) {
+		if (!$id && empty($this->data)) {
+			$this->Session->setFlash(__('Invalid node', true));
+			$this->redirect(array('action' => 'index'));
+		}
+
+		$node = $this->Node->read(null, $id);
+
+		try {
+			$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
+			$node['Node']['balance'] = count($bitcoin->getbalance());
+		} catch (Exception $e) {
+			$this->Session->setFlash(__('Unable to determine wallet balance.', true));
+			$this->redirect(array('action' => 'view',$id));
+		}
+		$this->set('node', $node);
 	}
 }
 ?>

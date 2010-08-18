@@ -9,7 +9,7 @@
 		echo $this->Form->input('port');
 		echo $this->Form->input('uri');
 		echo $this->Form->input('username');
-		echo $this->Form->input('password',array('title'=>'Password (Unchanged if empty)','value'=>''));
+		echo $this->Form->input('password',array('value'=>''));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>

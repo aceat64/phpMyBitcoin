@@ -1,8 +1,22 @@
-Add an ACL (Access Control List)
-Logging
-Statistics for the network as a whole
-When editing node ignore password field if no password is given
-Better support for mobile devices (iPhone, Android, etc)
-Add support for sending bitcoins, generating new address, etc
-Make the block and transaction list more user friendly
-Write a basic installer
+TODO List
+=========
+ * Add an ACL (Access Control List)
+ * Ability to view logging
+ * Statistics for the network as a whole
+ * Better support for mobile devices (iPhone, Android, etc)
+ * Write a basic installer
+ * Rewrite JSON-RPC PHP library as a component (or a datasource?)
+ * Add support for the following JSON-RPC methods:
+   - sendtoaddress
+   - getnewaddress
+   - listreceivedbyaddress (list the label on this page, using getlabel)
+   - setgenerate
+ * A good design, instead of cakephp's default layout/stylesheet
+ * Add per user settings for number of nodes per page
+ * Add global setting option for socket timeout
+
+Things bitcoin's JSON-RPC needs to support
+------------------------------------------
+ * list receiving addresses
+ * list sending addresses
+ * show unaccepted blocks in listtransactions (maybe)

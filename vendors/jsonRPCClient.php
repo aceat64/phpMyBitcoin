@@ -129,6 +129,7 @@ class jsonRPCClient {
 							'content' => $request
 							));
 		$context  = stream_context_create($opts);
+		ini_set('default_socket_timeout', 3);
 		if ($fp = @fopen($this->url, 'r', false, $context)) {
 			$response = '';
 			while($row = fgets($fp)) {

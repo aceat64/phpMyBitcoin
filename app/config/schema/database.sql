@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Aug 12, 2010 at 11:43 PM
+-- Generation Time: Aug 18, 2010 at 01:08 AM
 -- Server version: 5.1.41
 -- PHP Version: 5.3.2-1ubuntu4.2
 
@@ -13,6 +13,39 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 -- Database: `phpmybitcoin`
 --
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cake_sessions`
+--
+
+CREATE TABLE IF NOT EXISTS `cake_sessions` (
+  `id` varchar(255) NOT NULL,
+  `data` text,
+  `expires` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `logs`
+--
+
+CREATE TABLE IF NOT EXISTS `logs` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `created` datetime NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `ip` varchar(15) NOT NULL,
+  `model` varchar(255) NOT NULL,
+  `model_id` int(11) NOT NULL,
+  `action` varchar(255) NOT NULL,
+  `change` text NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `created` (`created`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -28,20 +61,17 @@ CREATE TABLE IF NOT EXISTS `nodes` (
   `uri` varchar(255) DEFAULT NULL,
   `username` varchar(64) NOT NULL,
   `password` varchar(64) NOT NULL,
+  `version` smallint(5) unsigned DEFAULT NULL,
   `balance` decimal(8,2) DEFAULT NULL,
   `blocks` mediumint(8) unsigned DEFAULT NULL,
+  `connections` smallint(5) unsigned DEFAULT NULL,
   `generate` tinyint(1) DEFAULT NULL,
   `khps` smallint(5) unsigned DEFAULT NULL,
-  `pending_blocks` smallint(6) DEFAULT NULL,
-  `generated_blocks` smallint(6) DEFAULT NULL,
+  `pending_blocks` smallint(5) unsigned DEFAULT NULL,
+  `generated_blocks` smallint(5) unsigned DEFAULT NULL,
   `last_update` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
---
--- Dumping data for table `nodes`
---
-
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -61,5 +91,5 @@ CREATE TABLE IF NOT EXISTS `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`) VALUES
-(1, 'admin', 'c17df1c914a423c537c0d61da8027d3fea19a462d3e077108cccf3b498d3723b');
+(1, 'admin', '43d6b5c4a8506d7209f054debc6cf654d65fa02947aa83321484d49d35d9ea7e');
 

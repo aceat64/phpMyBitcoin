@@ -3,6 +3,12 @@ class UsersController extends AppController {
 
 	var $name = 'Users';
 
+	function beforeFilter() {
+		parent::beforeFilter();
+		// On successful login redirect the user to the 'logLogin' action
+		$this->Auth->loginRedirect = array('action' => 'logLogin');
+	}
+
 	/**
 	 *  The AuthComponent provides the needed functionality
 	 *  for login, so you can leave this function blank.
@@ -10,7 +16,20 @@ class UsersController extends AppController {
 	function login() {
 	}
 
+	/**
+	 *	Used for logging when a user logs in, then redirecting the user.
+	 */
+	function logLogin() {
+		if($this->Auth->user()) {
+			$this->User->customLog('login', $this->Auth->user('id'), array('title' => $this->Auth->user('username'), 'description' => 'Login'));
+			$this->redirect(array('controller' => 'nodes','action' => 'index'));
+		} else {
+			$this->redirect($this->Auth->logout());
+		}
+	}
+
 	function logout() {
+		$this->User->customLog('logout', $this->Auth->user('id'), array('title' => $this->Auth->user('username'), 'description' => 'Logout'));
 		$this->redirect($this->Auth->logout());
 	}
 

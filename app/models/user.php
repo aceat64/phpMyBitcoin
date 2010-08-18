@@ -2,6 +2,12 @@
 class User extends AppModel {
 	var $name = 'User';
 	var $displayField = 'username';
+	var $actsAs = array('Logable' => array(
+		'userModel' => 'User',
+		'userKey' => 'user_id',
+		'change' => 'list', // options are 'list' or 'full'
+		'description_ids' => TRUE // options are TRUE or FALSE
+	));
 	var $validate = array(
 		'username' => array(
 			'maxlength' => array(
@@ -22,7 +28,7 @@ class User extends AppModel {
 			),
 			'notempty' => array(
 				'rule' => array('notempty'),
-				//'message' => 'Your custom message here',
+				'message' => 'Username can not be empty',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -32,7 +38,7 @@ class User extends AppModel {
 		'password' => array(
 			'notempty' => array(
 				'rule' => array('notempty'),
-				//'message' => 'Your custom message here',
+				'message' => 'Password can not be empty',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
