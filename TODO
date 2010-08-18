@@ -5,11 +5,6 @@ TODO List
  * Better support for mobile devices (iPhone, Android, etc)
  * Write a basic installer
  * Rewrite JSON-RPC PHP library as a component (or a datasource?)
- * Add support for the following JSON-RPC methods:
-   - sendtoaddress
-   - getnewaddress
-   - listreceivedbyaddress (list the label on this page, using getlabel)
-   - setgenerate
  * A good design, instead of cakephp's default layout/stylesheet
  * Add per user settings for number of nodes per page
  * Add global setting option for socket timeout
@@ -17,6 +12,5 @@ TODO List
 
 Things bitcoin's JSON-RPC needs to support
 ------------------------------------------
- * list receiving addresses
  * list sending addresses
  * show unaccepted blocks in listtransactions (maybe)

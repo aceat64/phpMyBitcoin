@@ -50,6 +50,12 @@
 
 </div>
 <div class="actions">
+	<h3><?php __('This User'); ?></h3>
+	<ul>
+		<li><?php echo $this->Html->link(__('View User', true), array('action' => 'view', $user['User']['id'])); ?></li>
+		<li><?php echo $this->Html->link(__('Edit User', true), array('action' => 'edit', $user['User']['id'])); ?> </li>
+		<li><?php echo $this->Html->link(__('Delete User', true), array('action' => 'delete', $this->Form->value('User.id')), null, sprintf(__('Are you sure you want to delete %s?', true), $this->Form->value('User.username'))); ?></li>
+	</ul>
 	<h3><?php __('Nodes'); ?></h3>
 	<ul>
 		<li><?php echo $this->Html->link(__('List Nodes', true), array('controller'=>'nodes','action' => 'index')); ?> </li>
@@ -59,8 +65,6 @@
 	<ul>
 		<li><?php echo $this->Html->link(__('List Users', true), array('controller'=>'users','action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(__('New User', true), array('controller'=>'users','action' => 'add')); ?> </li>
-		<li><?php echo $this->Html->link(__('Edit This User', true), array('action' => 'edit', $user['User']['id'])); ?> </li>
-		<li><?php echo $this->Html->link(__('Delete This User', true), array('action' => 'delete', $this->Form->value('User.id')), null, sprintf(__('Are you sure you want to delete %s?', true), $this->Form->value('User.username'))); ?></li>
 		<li><?php echo $this->Html->link(__('Logout', true), array('controller'=>'users','action' => 'logout')); ?> </li>
 	</ul>
 	<h3><?php __('Logging'); ?></h3>

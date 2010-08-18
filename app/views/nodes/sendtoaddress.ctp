@@ -1,45 +1,14 @@
-<div class="nodes view">
-	<h2><?php __('Show Log');?></h2>
-	<table cellpadding="0" cellspacing="0">
-	<tr>
-			<th><?php echo $this->Paginator->sort('Date','created');?></th>
-			<th><?php echo $this->Paginator->sort('description');?></th>
-			<th><?php echo $this->Paginator->sort('user_id');?></th>
-			<th><?php echo $this->Paginator->sort('ip');?></th>
-			<th><?php echo $this->Paginator->sort('action');?></th>
-			<th><?php echo $this->Paginator->sort('change');?></th>
-	</tr>
+<div class="nodes form">
+<?php echo $this->Form->create('Node');?>
+	<fieldset>
+ 		<legend><?php echo "Send Bitcoins: {$node['Node']['name']}"; ?></legend>
 	<?php
-	$i = 0;
-	foreach ($logs as $log):
-		$class = null;
-		if ($i++ % 2 == 0) {
-			$class = ' class="altrow"';
-		}
+		echo $this->Form->input('id',array('value'=>$node['Node']['id']));
+		echo $this->Form->input('address',array('label' => 'Send To'));
+		echo $this->Form->input('amount');
 	?>
-	<tr<?php echo $class;?>>
-		<td><?php echo $log['Log']['created']; ?>&nbsp;</td>
-		<td><?php echo $log['Log']['description']; ?>&nbsp;</td>
-		<td><?php echo $this->Html->link($log['User']['username'], array('controller' => 'users', 'action' => 'view', $log['User']['id'])); ?></td>
-		<td><?php echo $log['Log']['ip']; ?>&nbsp;</td>
-		<td><?php echo $log['Log']['action']; ?>&nbsp;</td>
-		<td><?php echo $log['Log']['change']; ?>&nbsp;</td>
-	</tr>
-<?php endforeach; ?>
-	</table>
-	<p>
-	<?php
-	echo $this->Paginator->counter(array(
-	'format' => __('Page %page% of %pages%, showing %current% records out of %count% total, starting on record %start%, ending on %end%', true)
-	));
-	?>	</p>
-
-	<div class="paging">
-		<?php echo $this->Paginator->prev('<< ' . __('previous', true), array(), null, array('class'=>'disabled'));?>
-	 | 	<?php echo $this->Paginator->numbers();?>
- |
-		<?php echo $this->Paginator->next(__('next', true) . ' >>', array(), null, array('class' => 'disabled'));?>
-	</div>
+	</fieldset>
+<?php echo $this->Form->end(__('Submit', true));?>
 </div>
 <div class="actions">
 	<h3><?php __('This Node'); ?></h3>
@@ -67,5 +36,6 @@
 	<h3><?php __('Logging'); ?></h3>
 	<ul>
 		<li><?php echo $this->Html->link(__('View Logs', true), array('controller'=>'logs','action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('Show This Node\'s Logs', true), array('controller'=>'nodes','action' => 'showlog',$node['Node']['id'])); ?> </li>
 	</uL>
 </div>

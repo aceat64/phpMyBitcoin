@@ -243,23 +243,164 @@ class NodesController extends AppController {
 		$this->redirect(array('action' => 'index'));
 	}
 
-	function send($id = null) {
+	function sendtoaddress($id = null) {
 		if (!$id && empty($this->data)) {
 			$this->Session->setFlash(__('Invalid node', true));
 			$this->redirect(array('action' => 'index'));
 		}
-
+		if(!$id) {
+			$id = $this->data['Node']['id'];
+		}
 		$node = $this->Node->read(null, $id);
 
-		try {
-			$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
-			$node['Node']['balance'] = count($bitcoin->getbalance());
-		} catch (Exception $e) {
-			$this->Session->setFlash(__('Unable to determine wallet balance.', true));
+		if($this->data) {
+			try {
+				$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
+				// Typecasting $this->data['Node']['amount'] to float because that's the only thing that works. This may not be a good idea though.
+				$bitcoin->sendtoaddress($this->data['Node']['address'],(float)$this->data['Node']['amount']);
+				$this->Node->customLog('sendtoaddress', $node['Node']['id'], array('title' => $node['Node']['name'], 'description' => "Node \"{$node['Node']['name']}\" ({$node['Node']['id']}) {$this->data['Node']['amount']} BTC sent to {$this->data['Node']['address']}"));
+			} catch (Exception $e) {
+				$this->Session->setFlash($e->getMessage());
+				$this->redirect($this->referer());
+			}
+			$this->Session->setFlash(__('Bitcoins sent', true));
 			$this->redirect(array('action' => 'view',$id));
 		}
 		$this->set('node', $node);
 	}
 
+	function setgenerate($id = null) {
+		if (!$id && empty($this->data)) {
+			$this->Session->setFlash(__('Invalid id for node', true));
+			$this->redirect($this->referer());
+		}
+		if(!$id) {
+			$id = $this->data['Node']['id'];
+		}
+		$node = $this->Node->read(null, $id);
+		if(empty($node)) {
+			$this->Session->setFlash(__('Invalid node', true));
+			$this->redirect($this->referer());
+		}
+
+		if(empty($this->data)) {
+			try {
+				$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
+				$info = $bitcoin->getinfo();
+				$node['Node']['generate'] = $info['generate'];
+				$node['Node']['genproclimit'] = $info['genproclimit'];
+			} catch (Exception $e) {
+				$this->Session->setFlash(__('Unable to connect to node', true));
+				$this->redirect($this->referer());
+			}
+		}
+
+		if (!empty($this->data)) {
+			try {
+				$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
+				if($this->data['Node']['setgenerate']) {
+					$bitcoin->setgenerate(true,(int)$this->data['Node']['genproclimit']);
+					$this->Node->customLog('setgenerate', $node['Node']['id'], array('title' => $node['Node']['name'], 'description' => "Node \"{$node['Node']['name']}\" ({$node['Node']['id']}) setgenerate true {$this->data['Node']['genproclimit']} called"));
+				} else {
+					$bitcoin->setgenerate(false,(int)$this->data['Node']['genproclimit']);
+					$this->Node->customLog('setgenerate', $node['Node']['id'], array('title' => $node['Node']['name'], 'description' => "Node \"{$node['Node']['name']}\" ({$node['Node']['id']}) setgenerate false {$this->data['Node']['genproclimit']} called"));
+				}
+			} catch (Exception $e) {
+				$this->Session->setFlash(__('Unable to connect to node', true));
+				$this->redirect($this->referer());
+			}
+			$this->redirect(array('action' => 'view',$id));
+		}
+		$this->set('node', $node);
+	}
+
+	function listaddresses($id = null) {
+		if (!$id) {
+			$this->Session->setFlash(__('Invalid node', true));
+			$this->redirect($this->referer());
+		}	
+		$node = $this->Node->read(null, $id);
+		if(empty($node)) {
+			$this->Session->setFlash(__('Invalid node', true));
+			$this->redirect($this->referer());
+		}
+
+		try {
+			$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
+			$addresses = $bitcoin->listreceivedbyaddress(0,true);
+		} catch (Exception $e) {
+			$this->Session->setFlash(__('Unable to connect to node', true));
+			$this->redirect($this->referer());
+		}
+
+		$this->set(compact('node','addresses'));
+	}
+
+	function setlabel($id = null,$address = null) {
+		if (!$id && empty($this->data)) {
+			$this->Session->setFlash(__('Invalid id for node', true));
+			$this->redirect($this->referer());
+		}
+		if(!$address && empty($this->data)) {
+			$this->Session->setFlash(__('No address specified', true));
+			$this->redirect($this->referer());
+		}
+		if(!$id) {
+			$id = $this->data['Node']['id'];
+		}
+		$node = $this->Node->read(null, $id);
+		if(empty($node)) {
+			$this->Session->setFlash(__('Invalid node', true));
+			$this->redirect($this->referer());
+		}
+
+		if(empty($this->data)) {
+			try {
+				$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
+				$label = $bitcoin->getlabel($address);
+			} catch (Exception $e) {
+				$this->Session->setFlash(__('Unable to connect to node', true));
+				$this->redirect($this->referer());
+			}
+		}
+
+		if (!empty($this->data)) {
+			try {
+				$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
+				$bitcoin->setlabel($this->data['Node']['address'],$this->data['Node']['label']);
+				$this->Node->customLog('setlabel', $node['Node']['id'], array('title' => $node['Node']['name'], 'description' => "Node \"{$node['Node']['name']}\" ({$node['Node']['id']}) set label to \"{$this->data['Node']['label']}\" for address \"{$this->data['Node']['address']}\""));
+			} catch (Exception $e) {
+				$this->Session->setFlash(__('Unable to connect to node', true));
+				$this->redirect($this->referer());
+			}
+			$this->redirect(array('action' => 'view',$id));
+		}
+		$this->set(compact('node','address','label'));
+	}
+
+	function getnewaddress($id = null) {
+		if (!$id && empty($this->data)) {
+			$this->Session->setFlash(__('Invalid node', true));
+			$this->redirect(array('action' => 'index'));
+		}
+		if(!$id) {
+			$id = $this->data['Node']['id'];
+		}
+		$node = $this->Node->read(null, $id);
+
+		if($this->data) {
+			try {
+				$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
+				$address = $bitcoin->getnewaddress($this->data['Node']['label']);
+				$this->Node->customLog('getnewaddress', $node['Node']['id'], array('title' => $node['Node']['name'], 'description' => "Node \"{$node['Node']['name']}\" ({$node['Node']['id']}) newaddress \"{$address}\" created with label \"{$this->data['Node']['label']}\""));
+			} catch (Exception $e) {
+				$this->Session->setFlash($e->getMessage());
+				$this->redirect($this->referer());
+			}
+			$this->Session->setFlash(__('Address created', true));
+			$this->redirect(array('action' => 'listaddresses',$id));
+		}
+		$this->set('node', $node);
+	}
 }
 ?>
