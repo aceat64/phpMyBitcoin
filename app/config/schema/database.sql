@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS `nodes` (
   `khps` smallint(5) unsigned DEFAULT NULL,
   `pending_blocks` smallint(5) unsigned DEFAULT NULL,
   `generated_blocks` smallint(5) unsigned DEFAULT NULL,
+  `status` varchar(32) DEFAULT NULL,
   `last_update` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;

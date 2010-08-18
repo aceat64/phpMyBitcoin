@@ -15,7 +15,6 @@ class NodesController extends AppController {
 		$this->Node->recursive = 0;
 		$nodes = $this->paginate();
 		foreach($nodes as &$node) {
-			$node['Node']['status'] = 'online';
 			if(strtotime($node['Node']['last_update']) < time() - 30) {
 				try {
 					$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
@@ -37,10 +36,15 @@ class NodesController extends AppController {
 					} else {
 						$node['Node']['khps'] = NULL;
 					}
+					$node['Node']['status'] = 'online';
 					$node['Node']['last_update'] = date('Y-m-d H:i:s');
 				} catch (Exception $e) {
 					// Can't connect, lets update the status
 					$node['Node']['status'] = $e->getMessage();
+					$node['Node']['last_update'] = date('Y-m-d H:i:s');
+					// Detach LogableBehavior so the log file doesn't get filled with node updates/refreshes
+					$this->Node->Behaviors->detach('Logable');
+					$this->Node->save($node);
 				}
 
 				if($node['Node']['status'] == 'online') {
@@ -90,8 +94,6 @@ class NodesController extends AppController {
 			$this->redirect($this->referer());
 		}
 
-		$node['Node']['status'] = 'online';
-
 		try {
 			$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
 			$info = $bitcoin->getinfo();
@@ -112,10 +114,15 @@ class NodesController extends AppController {
 			} else {
 				$node['Node']['khps'] = NULL;
 			}
+			$node['Node']['status'] = 'online';
 			$node['Node']['last_update'] = date('Y-m-d H:i:s');
 		} catch (Exception $e) {
 			// Can't connect, lets update the status
 			$node['Node']['status'] = $e->getMessage();
+			$node['Node']['last_update'] = date('Y-m-d H:i:s');
+			// Detach LogableBehavior so the log file doesn't get filled with node updates/refreshes
+			$this->Node->Behaviors->detach('Logable');
+			$this->Node->save($node);
 		}
 
 		if($node['Node']['status'] == 'online') {
