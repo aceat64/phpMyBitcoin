@@ -10,7 +10,8 @@ TODO List
  * Add global setting option for socket timeout
  * Show totals for node balances, khps, pending and generated blocks
 
-Things bitcoin's JSON-RPC needs to support
-------------------------------------------
+Things I would like bitcoin's JSON-RPC to support
+-------------------------------------------------
  * list sending addresses
  * show unaccepted blocks in listtransactions (maybe)
+ * select a range of transactions to show

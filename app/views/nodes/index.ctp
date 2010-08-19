@@ -23,7 +23,7 @@
 		}
 	?>
 	<tr<?php echo $class;?>>
-		<td><?php echo $node['Node']['name']; ?>&nbsp;</td>
+		<td><?php echo $this->Html->link($node['Node']['name'], array('action' => 'view', $node['Node']['id'])); ?>&nbsp;</td>
 		<?php if($node['Node']['status'] == 'online'): ?>
 		<td><?php echo $number->precision($node['Node']['balance'],2); ?>&nbsp;</td>
 		<td><?php echo $node['Node']['blocks']; ?>&nbsp;</td>
@@ -64,7 +64,6 @@
 		<?php endif; ?>
 		<td><?php echo $time->timeAgoInWords($node['Node']['last_update']); ?>&nbsp;</td>
 		<td class="actions">
-			<?php echo $this->Html->link(__('View', true), array('action' => 'view', $node['Node']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit', true), array('action' => 'edit', $node['Node']['id'])); ?>
 			<?php echo $this->Html->link(__('Delete', true), array('action' => 'delete', $node['Node']['id']), null, sprintf(__('Are you sure you want to delete %s?', true), $node['Node']['name'])); ?>
 		</td>
