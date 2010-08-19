@@ -218,22 +218,22 @@ class LogableBehavior extends ModelBehavior
 			// have all the detail models and change as list : 
 			if (isset($one['model']) && isset($one['action']) && isset($one['change']) && isset($one['model_id'])) {
 				 if ($one['action'] == 'edit') {
-				 	$result[$key]['Log']['event'] .= ' edited '.$one['change'].' of '.low($one['model']).'(id '.$one['model_id'].')';
+				 	$result[$key]['Log']['event'] .= ' edited '.$one['change'].' of '.strtolower($one['model']).'(id '.$one['model_id'].')';
 				 	//	' at '.$one['created']; 
 				 } elseif ($one['action'] == 'add') {
-				 	$result[$key]['Log']['event'] .= ' added a '.low($one['model']).'(id '.$one['model_id'].')';
+				 	$result[$key]['Log']['event'] .= ' added a '.strtolower($one['model']).'(id '.$one['model_id'].')';
 				 } elseif ($one['action'] == 'delete') {
-				 	$result[$key]['Log']['event'] .= ' deleted the '.low($one['model']).'(id '.$one['model_id'].')';
+				 	$result[$key]['Log']['event'] .= ' deleted the '.strtolower($one['model']).'(id '.$one['model_id'].')';
 				 }
 					 	
 			} elseif ( isset($one['model']) && isset($one['action'])  && isset($one['model_id']) ) { // have model,model_id and action
                  if ($one['action'] == 'edit') {
-				 	$result[$key]['Log']['event'] .= ' edited '.low($one['model']).'(id '.$one['model_id'].')';
+				 	$result[$key]['Log']['event'] .= ' edited '.strtolower($one['model']).'(id '.$one['model_id'].')';
 				 	//	' at '.$one['created']; 
 				 } elseif ($one['action'] == 'add') {
-				 	$result[$key]['Log']['event'] .= ' added a '.low($one['model']).'(id '.$one['model_id'].')';
+				 	$result[$key]['Log']['event'] .= ' added a '.strtolower($one['model']).'(id '.$one['model_id'].')';
 				 } elseif ($one['action'] == 'delete') {
-				 	$result[$key]['Log']['event'] .= ' deleted the '.low($one['model']).'(id '.$one['model_id'].')';
+				 	$result[$key]['Log']['event'] .= ' deleted the '.strtolower($one['model']).'(id '.$one['model_id'].')';
 				 }
 			} else { // only description field exist
                 $result[$key]['Log']['event'] = $one['description'];

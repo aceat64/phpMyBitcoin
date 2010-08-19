@@ -24,36 +24,36 @@
 	?>
 	<tr<?php echo $class;?>>
 		<td><?php echo $this->Html->link($node['Node']['name'], array('action' => 'view', $node['Node']['id'])); ?>&nbsp;</td>
-		<?php if($node['Node']['status'] == 'online'): ?>
+		<?php if ($node['Node']['status'] == 'online'): ?>
 		<td><?php echo $number->precision($node['Node']['balance'],2); ?>&nbsp;</td>
 		<td><?php echo $node['Node']['blocks']; ?>&nbsp;</td>
 		<td><?php echo $node['Node']['connections']; ?>&nbsp;</td>
 
-		<?php if($node['Node']['version'] === NULL): ?>
+		<?php if ($node['Node']['version'] === NULL): ?>
 		<td>n/a</td>
 		<?php else: ?>
 		<td><?php echo $node['Node']['version']; ?>&nbsp;</td>
 		<?php endif; ?>
 
-		<?php if($node['Node']['generate'] == 1): ?>
+		<?php if ($node['Node']['generate'] == 1): ?>
 		<td>True&nbsp;</td>
 		<?php else: ?>
 		<td>False&nbsp;</td>
 		<?php endif; ?>
 
-		<?php if($node['Node']['khps'] === NULL): ?>
+		<?php if ($node['Node']['khps'] === NULL): ?>
 		<td>n/a</td>
 		<?php else: ?>
 		<td><?php echo $number->precision($node['Node']['khps'],0); ?>&nbsp;</td>
 		<?php endif; ?>
 
-		<?php if($node['Node']['pending_blocks'] === NULL): ?>
+		<?php if ($node['Node']['pending_blocks'] === NULL): ?>
 		<td>n/a</td>
 		<?php else: ?>
 		<td><?php echo $node['Node']['pending_blocks']; ?>&nbsp;</td>
 		<?php endif; ?>
 
-		<?php if($node['Node']['generated_blocks'] === NULL): ?>
+		<?php if ($node['Node']['generated_blocks'] === NULL): ?>
 		<td>n/a</td>
 		<?php else: ?>
 		<td><?php echo $node['Node']['generated_blocks']; ?>&nbsp;</td>

@@ -10,7 +10,7 @@
 					<th><span style="font-style:italic" class="help" title="This is cumulative over the lifetime of the address, it does NOT show how much the address 'owns'.">Amount</span></th>
 					<th><span style="font-style:italic" class="help" title="The number of confirmations of the most recent transaction included.">Confirmations</span></th>
 				</tr>
-			<?php foreach($addresses as $address): ?>
+			<?php foreach ($addresses as $address): ?>
 				<tr>
 					<td><?php echo $this->Html->link($address['address'], array('action' => 'setlabel',$node['Node']['id'],$address['address'])); ?></td>
 					<td><?php echo $address['label']; ?></td>

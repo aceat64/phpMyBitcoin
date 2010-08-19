@@ -4,7 +4,7 @@
  		<legend><?php echo "Set Generate: {$node['Node']['name']}"; ?></legend>
 	<?php
 		echo $this->Form->input('id',array('value'=>$node['Node']['id']));
-		if($node['Node']['generate'] == 1) {
+		if ($node['Node']['generate'] == 1) {
 			echo $this->Form->checkbox('setgenerate',array('checked'=>'checked'));
 		} else {
 			echo $this->Form->checkbox('setgenerate');

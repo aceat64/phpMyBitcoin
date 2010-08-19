@@ -14,12 +14,12 @@ class NodesController extends AppController {
 	function index() {
 		$this->Node->recursive = 0;
 		$nodes = $this->paginate();
-		foreach($nodes as &$node) {
-			if(strtotime($node['Node']['last_update']) < time() - 30) {
+		foreach ($nodes as &$node) {
+			if (strtotime($node['Node']['last_update']) < time() - 30) {
 				try {
 					$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
 					$info = $bitcoin->getinfo();
-					if(isset($info['version'])) {
+					if (isset($info['version'])) {
 						$node['Node']['version'] = $info['version'];
 					} else {
 						$node['Node']['version'] = NULL;
@@ -31,7 +31,7 @@ class NodesController extends AppController {
 					$node['Node']['generate'] = $info['generate'];
 					//$node['Node']['genproclimit'] = $info['genproclimit'];
 					//$node['Node']['difficulty'] = $info['difficulty'];
-					if(isset($info['hashespersec'])) {
+					if (isset($info['hashespersec'])) {
 						$node['Node']['khps'] = $info['hashespersec'] / 1000;
 					} else {
 						$node['Node']['khps'] = NULL;
@@ -47,13 +47,13 @@ class NodesController extends AppController {
 					$this->Node->save($node);
 				}
 
-				if($node['Node']['status'] == 'online') {
+				if ($node['Node']['status'] == 'online') {
 					try {
 						// we can't just count() because that will include blocks that are not accepted
 						$pending_blocks = $bitcoin->listgenerated(TRUE);
 						$node['Node']['pending_blocks'] = 0;
-						foreach($pending_blocks as $block) {
-							if($block['accepted']) {
+						foreach ($pending_blocks as $block) {
+							if ($block['accepted']) {
 								$node['Node']['pending_blocks']++;
 							}
 						}
@@ -65,8 +65,8 @@ class NodesController extends AppController {
 						// we can't just count() because that will include blocks that are not accepted
 						$generated_blocks = $bitcoin->listgenerated();
 						$node['Node']['generated_blocks'] = 0;
-						foreach($generated_blocks as $block) {
-							if($block['accepted']) {
+						foreach ($generated_blocks as $block) {
+							if ($block['accepted']) {
 								$node['Node']['generated_blocks']++;
 							}
 						}
@@ -89,7 +89,7 @@ class NodesController extends AppController {
 			$this->redirect($this->referer());
 		}
 		$node = $this->Node->read(null, $id);
-		if(empty($node)) {
+		if (empty($node)) {
 			$this->Session->setFlash(__('Invalid node', true));
 			$this->redirect($this->referer());
 		}
@@ -97,7 +97,7 @@ class NodesController extends AppController {
 		try {
 			$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
 			$info = $bitcoin->getinfo();
-			if(isset($info['version'])) {
+			if (isset($info['version'])) {
 				$node['Node']['version'] = $info['version'];
 			} else {
 				$node['Node']['version'] = NULL;
@@ -109,7 +109,7 @@ class NodesController extends AppController {
 			$node['Node']['generate'] = $info['generate'];
 			$node['Node']['genproclimit'] = $info['genproclimit'];
 			$node['Node']['difficulty'] = $info['difficulty'];
-			if(isset($info['hashespersec'])) {
+			if (isset($info['hashespersec'])) {
 				$node['Node']['khps'] = $info['hashespersec'] / 1000;
 			} else {
 				$node['Node']['khps'] = NULL;
@@ -125,13 +125,13 @@ class NodesController extends AppController {
 			$this->Node->save($node);
 		}
 
-		if($node['Node']['status'] == 'online') {
+		if ($node['Node']['status'] == 'online') {
 			try {
 				// we can't just count() because that will include blocks that are not accepted
 				$pending_blocks = $bitcoin->listgenerated(TRUE);
 				$node['Node']['pending_blocks'] = 0;
-				foreach($pending_blocks as $block) {
-					if($block['accepted']) {
+				foreach ($pending_blocks as $block) {
+					if ($block['accepted']) {
 						$node['Node']['pending_blocks']++;
 					}
 				}
@@ -143,8 +143,8 @@ class NodesController extends AppController {
 				// we can't just count() because that will include blocks that are not accepted
 				$generated_blocks = $bitcoin->listgenerated();
 				$node['Node']['generated_blocks'] = 0;
-				foreach($generated_blocks as $block) {
-					if($block['accepted']) {
+				foreach ($generated_blocks as $block) {
+					if ($block['accepted']) {
 						$node['Node']['generated_blocks']++;
 					}
 				}
@@ -155,13 +155,13 @@ class NodesController extends AppController {
 
 			try {
 				$transactions = $bitcoin->listtransactions(100,0,TRUE);
-				if(count($transactions)) {
+				if (count($transactions)) {
 					// sorting $transactions may not be necessary, it looks like listtransactions is already sorted based on # of confirmations
 					$sortArray = array(); 
 	
-					foreach($transactions as $transaction){
-						foreach($transaction as $key=>$value){
-							if(!isset($sortArray[$key])){
+					foreach ($transactions as $transaction) {
+						foreach ($transaction as $key=>$value) {
+							if (!isset($sortArray[$key])) {
 								$sortArray[$key] = array();
 							}
 							$sortArray[$key][] = $value;
@@ -190,7 +190,7 @@ class NodesController extends AppController {
 		}
 		$node = $this->Node->read(null, $id);
 		$logs = $this->paginate('Log',array('model'=>'Node','model_id'=>$id));
-		if(empty($node)) {
+		if (empty($node)) {
 			$this->Session->setFlash(__('Invalid node', true));
 			$this->redirect($this->referer());
 		}
@@ -215,13 +215,13 @@ class NodesController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		$node = $this->Node->read(null, $id);
-		if(empty($node)) {
+		if (empty($node)) {
 			$this->Session->setFlash(__('Invalid node', true));
 			$this->redirect($this->referer());
 		}
 
 		if (!empty($this->data)) {
-			if(empty($this->data['Node']['password'])) {
+			if (empty($this->data['Node']['password'])) {
 				$this->data['Node']['password'] = $node['Node']['password'];
 			}
 			if ($this->Node->save($this->data)) {
@@ -255,12 +255,12 @@ class NodesController extends AppController {
 			$this->Session->setFlash(__('Invalid node', true));
 			$this->redirect(array('action' => 'index'));
 		}
-		if(!$id) {
+		if (!$id) {
 			$id = $this->data['Node']['id'];
 		}
 		$node = $this->Node->read(null, $id);
 
-		if($this->data) {
+		if ($this->data) {
 			try {
 				$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
 				// Typecasting $this->data['Node']['amount'] to float because that's the only thing that works. This may not be a good idea though.
@@ -281,16 +281,16 @@ class NodesController extends AppController {
 			$this->Session->setFlash(__('Invalid id for node', true));
 			$this->redirect($this->referer());
 		}
-		if(!$id) {
+		if (!$id) {
 			$id = $this->data['Node']['id'];
 		}
 		$node = $this->Node->read(null, $id);
-		if(empty($node)) {
+		if (empty($node)) {
 			$this->Session->setFlash(__('Invalid node', true));
 			$this->redirect($this->referer());
 		}
 
-		if(empty($this->data)) {
+		if (empty($this->data)) {
 			try {
 				$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
 				$info = $bitcoin->getinfo();
@@ -305,7 +305,7 @@ class NodesController extends AppController {
 		if (!empty($this->data)) {
 			try {
 				$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
-				if($this->data['Node']['setgenerate']) {
+				if ($this->data['Node']['setgenerate']) {
 					$bitcoin->setgenerate(true,(int)$this->data['Node']['genproclimit']);
 					$this->Node->customLog('setgenerate', $node['Node']['id'], array('title' => $node['Node']['name'], 'description' => "Node \"{$node['Node']['name']}\" ({$node['Node']['id']}) setgenerate true {$this->data['Node']['genproclimit']} called"));
 				} else {
@@ -327,7 +327,7 @@ class NodesController extends AppController {
 			$this->redirect($this->referer());
 		}	
 		$node = $this->Node->read(null, $id);
-		if(empty($node)) {
+		if (empty($node)) {
 			$this->Session->setFlash(__('Invalid node', true));
 			$this->redirect($this->referer());
 		}
@@ -348,20 +348,20 @@ class NodesController extends AppController {
 			$this->Session->setFlash(__('Invalid id for node', true));
 			$this->redirect($this->referer());
 		}
-		if(!$address && empty($this->data)) {
+		if (!$address && empty($this->data)) {
 			$this->Session->setFlash(__('No address specified', true));
 			$this->redirect($this->referer());
 		}
-		if(!$id) {
+		if (!$id) {
 			$id = $this->data['Node']['id'];
 		}
 		$node = $this->Node->read(null, $id);
-		if(empty($node)) {
+		if (empty($node)) {
 			$this->Session->setFlash(__('Invalid node', true));
 			$this->redirect($this->referer());
 		}
 
-		if(empty($this->data)) {
+		if (empty($this->data)) {
 			try {
 				$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
 				$label = $bitcoin->getlabel($address);
@@ -390,12 +390,12 @@ class NodesController extends AppController {
 			$this->Session->setFlash(__('Invalid node', true));
 			$this->redirect(array('action' => 'index'));
 		}
-		if(!$id) {
+		if (!$id) {
 			$id = $this->data['Node']['id'];
 		}
 		$node = $this->Node->read(null, $id);
 
-		if($this->data) {
+		if ($this->data) {
 			try {
 				$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
 				$address = $bitcoin->getnewaddress($this->data['Node']['label']);

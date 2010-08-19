@@ -16,14 +16,14 @@
 			<?php echo $node['Node']['port']; ?>
 			&nbsp;
 		</dd>
-		<?php if(!empty($node['Node']['uri'])): ?>
+		<?php if (!empty($node['Node']['uri'])): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Uri'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $node['Node']['uri']; ?>
 			&nbsp;
 		</dd>
 		<?php endif; ?>
-		<?php if(!empty($node['Node']['proxy'])): ?>
+		<?php if (!empty($node['Node']['proxy'])): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Proxy'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $node['Node']['proxy']; ?>
@@ -35,7 +35,7 @@
 			<?php echo $node['Node']['username']; ?>
 			&nbsp;
 		</dd>
-		<?php if($node['Node']['status'] == 'online'): ?>
+		<?php if ($node['Node']['status'] == 'online'): ?>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Balance'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $number->precision($node['Node']['balance'],2); ?> BTC
@@ -53,7 +53,7 @@
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Version'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php if($node['Node']['version'] === NULL): ?>
+			<?php if ($node['Node']['version'] === NULL): ?>
 			n/a
 			<?php else: ?>
 			<?php echo $node['Node']['version']; ?>
@@ -62,7 +62,7 @@
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Generate'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php if($node['Node']['generate'] == 1): ?>
+			<?php if ($node['Node']['generate'] == 1): ?>
 			True
 			&nbsp;
 			<?php else: ?>
@@ -72,7 +72,7 @@
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Proc Limit'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php if($node['Node']['genproclimit'] == -1): ?>
+			<?php if ($node['Node']['genproclimit'] == -1): ?>
 			Unlimited
 			&nbsp;
 			<?php else: ?>
@@ -87,7 +87,7 @@
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Khps'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php if($node['Node']['khps'] === NULL): ?>
+			<?php if ($node['Node']['khps'] === NULL): ?>
 			n/a
 			<?php else: ?>
 			<?php echo $number->precision($node['Node']['khps'],0); ?>
@@ -96,7 +96,7 @@
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Pending Blocks'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php if($node['Node']['pending_blocks'] === NULL): ?>
+			<?php if ($node['Node']['pending_blocks'] === NULL): ?>
 			n/a
 			<?php else: ?>
 			<?php echo $node['Node']['pending_blocks']; ?>
@@ -105,7 +105,7 @@
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Generated Blocks'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php if($node['Node']['generated_blocks'] === NULL): ?>
+			<?php if ($node['Node']['generated_blocks'] === NULL): ?>
 			n/a
 			<?php else: ?>
 			<?php echo $node['Node']['generated_blocks']; ?>
@@ -120,10 +120,10 @@
 		</dd>
 		<?php endif; ?>
 	</dl>
-	<?php if($node['Node']['status'] == 'online'): ?>
+	<?php if ($node['Node']['status'] == 'online'): ?>
 	<div class="transactions">
 		<h3><?php __('Transactions'); ?></h3>
-		<?php if(isset($transactions) && count($transactions) > 0): ?>
+		<?php if (isset($transactions) && count($transactions) > 0): ?>
 			<table cellpadding="0" cellspacing="0">
 				<tr>
 					<th>Status</th>
@@ -132,18 +132,18 @@
 					<th>Debit</th>
 					<th>Credit</th>
 				</tr>
-			<?php foreach($transactions as $transaction): ?>
+			<?php foreach ($transactions as $transaction): ?>
 				<tr>
-					<?php if($transaction['confirmations'] < 6): ?>
+					<?php if ($transaction['confirmations'] < 6): ?>
 					<td><span class="help" title="Tx ID: <?php echo $transaction['txid']; ?>"><?php echo $transaction['confirmations']; ?>/unconfirmed</span></td>
 					<?php else: ?>
 					<td><span class="help" title="Tx ID: <?php echo $transaction['txid']; ?>"><?php echo $transaction['confirmations']; ?> confirmations</span></td>
 					<?php endif; ?>
 					<td><?php echo $time->nice($transaction['txtime']); ?></td>
 
-					<?php if($transaction['category'] == 'debit'): ?>
+					<?php if ($transaction['category'] == 'debit'): ?>
 
-					<?php if(empty($transaction['label'])): ?>
+					<?php if (empty($transaction['label'])): ?>
 					<td>To: <span style="font-style:italic" class="help" title="Address: <?php echo $transaction['address']; ?>"><?php echo $this->Html->link('unknown',array('action' => 'setlabel',$node['Node']['id'],$transaction['address'])); ?></span></td>
 					<?php else: ?>
 					<td>To: <span class="help" title="Address: <?php echo $transaction['address']; ?>"><?php echo $this->Html->link($transaction['label'],array('action' => 'setlabel',$node['Node']['id'],$transaction['address'])); ?></span></td>
@@ -151,9 +151,9 @@
 					<td>-<?php echo $number->precision($transaction['amount'],2); ?></td>
 					<td>&nbsp;</td>
 
-					<?php elseif($transaction['category'] == 'credit'): ?>
+					<?php elseif ($transaction['category'] == 'credit'): ?>
 
-					<?php if(empty($transaction['label'])): ?>
+					<?php if (empty($transaction['label'])): ?>
 					<td>From: unknown, Received with: <span style="font-style:italic" class="help" title="Address: <?php echo $transaction['address']; ?>"><?php echo $this->Html->link('no label',array('action' => 'setlabel',$node['Node']['id'],$transaction['address'])); ?></span></td>
 					<?php else: ?>
 					<td>From: unknown, Received with: <span class="help" title="Address: <?php echo $transaction['address']; ?>"><?php echo $this->Html->link($transaction['label'],array('action' => 'setlabel',$node['Node']['id'],$transaction['address'])); ?></span></td>
@@ -161,13 +161,13 @@
 					<td>&nbsp;</td>
 					<td>+<?php echo $number->precision($transaction['amount'],2); ?></td>
 
-					<?php elseif($transaction['category'] == 'mixed_debit'): ?>
+					<?php elseif ($transaction['category'] == 'mixed_debit'): ?>
 
 					<td>Generated, matures in <?php echo 120 - $transaction['confirmations']; ?> more blocks</td>
 					<td>&nbsp;</td>
 					<td>+<?php echo $number->precision($transaction['amount'],2); ?></td>
 
-					<?php elseif($transaction['category'] == 'generated'): ?>
+					<?php elseif ($transaction['category'] == 'generated'): ?>
 
 					<td>Generated</td>
 					<td>&nbsp;</td>
@@ -181,7 +181,7 @@
 				</tr>
 			<?php endforeach; ?>
 			</table>
-		<?php elseif($transactions === NULL): ?>
+		<?php elseif ($transactions === NULL): ?>
 			<p>This node does not support viewing transactions.</p>
 		<?php else: ?>
 			<p>This node has no transactions yet.</p>

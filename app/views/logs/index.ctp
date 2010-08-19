@@ -19,7 +19,7 @@
 	?>
 	<tr<?php echo $class;?>>
 		<td><?php echo $log['Log']['created']; ?>&nbsp;</td>
-		<?php if($log['Log']['action'] == 'add' || $log['Log']['action'] == 'edit'): ?>
+		<?php if ($log['Log']['action'] == 'add' || $log['Log']['action'] == 'edit'): ?>
 		<td><?php echo $this->Html->link($log['Log']['description'], array('controller' => $log['Log']['model'].'s', 'action' => 'view', $log['Log']['model_id'])); ?>&nbsp;</td>
 		<?php else: ?>
 		<td><?php echo $log['Log']['description']; ?>&nbsp;</td>

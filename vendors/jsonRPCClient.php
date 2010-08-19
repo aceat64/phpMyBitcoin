@@ -134,7 +134,7 @@ class jsonRPCClient {
 		if ($fp = @fopen($this->url, 'r', false, $context)) {
 			stream_set_timeout($fp,$timeout);
 			$response = '';
-			while($row = fgets($fp)) {
+			while ($row = fgets($fp)) {
 				$response.= trim($row)."\n";
 			}
 			$this->debug && $this->debug.='***** Server response *****'."\n".$response.'***** End of server response *****'."\n";

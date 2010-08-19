@@ -21,7 +21,7 @@ class UsersController extends AppController {
 	 *	Used for logging when a user logs in, then redirecting the user.
 	 */
 	function logLogin() {
-		if($this->Auth->user()) {
+		if ($this->Auth->user()) {
 			$this->User->customLog('login', $this->Auth->user('id'), array('title' => $this->Auth->user('username'), 'description' => 'Login'));
 			$this->redirect(array('controller' => 'nodes','action' => 'index'));
 		} else {
@@ -46,7 +46,7 @@ class UsersController extends AppController {
 		}
 		$user = $this->User->read(null, $id);
 		$logs = $this->paginate('Log',array('user_id'=>$user['User']['id']));
-		if(empty($user)) {
+		if (empty($user)) {
 			$this->Session->setFlash(__('Invalid user', true));
 			$this->redirect($this->referer());
 		}
@@ -80,7 +80,7 @@ class UsersController extends AppController {
 		}
 		if (empty($this->data)) {
 			$user = $this->User->read(null, $id);
-			if(empty($user)) {
+			if (empty($user)) {
 				$this->Session->setFlash(__('Invalid user', true));
 				$this->redirect($this->referer());
 			}

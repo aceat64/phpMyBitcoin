@@ -149,7 +149,7 @@ class jsonRPCClient {
 		$context  = stream_context_create($opts);
 		if ($fp = @fopen($this->url, 'r', false, $context)) {
 			$response = '';
-			while($row = fgets($fp)) {
+			while ($row = fgets($fp)) {
 				$response.= trim($row)."\n";
 			}
 			$this->debug && $this->debug.='***** Server response *****'."\n".$response.'***** End of server response *****'."\n";
