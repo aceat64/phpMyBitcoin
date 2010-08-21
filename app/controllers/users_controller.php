@@ -7,6 +7,7 @@ class UsersController extends AppController {
 		parent::beforeFilter();
 		// On successful login redirect the user to the 'logLogin' action
 		$this->Auth->loginRedirect = array('action' => 'logLogin');
+		// Just making sure we default to no recursion
 		$this->User->recursive = 0;
 	}
 
@@ -21,21 +22,24 @@ class UsersController extends AppController {
 	 *	Used for logging when a user logs in, then redirecting the user.
 	 */
 	function logLogin() {
+		// Make sure the user is actually logged in
 		if ($this->Auth->user()) {
+			// Write the user's login to the logfile and then redirect them to the nodes controller
 			$this->User->customLog('login', $this->Auth->user('id'), array('title' => $this->Auth->user('username'), 'description' => 'Login'));
 			$this->redirect(array('controller' => 'nodes','action' => 'index'));
 		} else {
+			// If for some reason they aren't logged in, send them to $this->Auth->logout() which makes sure they are logged out and redirects them to the login page
 			$this->redirect($this->Auth->logout());
 		}
 	}
 
 	function logout() {
+		// Write the user's logout to the logfile
 		$this->User->customLog('logout', $this->Auth->user('id'), array('title' => $this->Auth->user('username'), 'description' => 'Logout'));
 		$this->redirect($this->Auth->logout());
 	}
 
 	function index() {
-		$this->User->recursive = 0;
 		$this->set('users', $this->paginate());
 	}
 
