@@ -87,10 +87,10 @@
 		</dd>
 		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Khps'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
-			<?php if ($node['Node']['khps'] === NULL): ?>
+			<?php if ($node['Node']['hashespersec'] === NULL): ?>
 			n/a
 			<?php else: ?>
-			<?php echo $number->precision($node['Node']['khps'],0); ?>
+			<?php echo $number->precision($node['Node']['hashespersec']/1000,0); ?>
 			<?php endif; ?>
 			&nbsp;
 		</dd>

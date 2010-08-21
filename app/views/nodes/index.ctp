@@ -41,10 +41,10 @@
 		<td>False&nbsp;</td>
 		<?php endif; ?>
 
-		<?php if ($node['Node']['khps'] === NULL): ?>
+		<?php if ($node['Node']['hashespersec'] === NULL): ?>
 		<td>n/a</td>
 		<?php else: ?>
-		<td><?php echo $number->precision($node['Node']['khps'],0); ?>&nbsp;</td>
+		<td><?php echo $number->precision($node['Node']['hashespersec']/1000,0); ?>&nbsp;</td>
 		<?php endif; ?>
 
 		<?php if ($node['Node']['pending_blocks'] === NULL): ?>

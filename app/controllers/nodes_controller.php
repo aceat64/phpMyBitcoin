@@ -394,23 +394,13 @@ class NodesController extends AppController {
 			// run getinfo on this node
 			$info = $bitcoin->getinfo();
 
-			// Map $info to $node, TODO: it might be cleaner to rewrite this as a foreach
-			if (isset($info['version'])) {
-				$node['Node']['version'] = $info['version'];
-			} else {
-				$node['Node']['version'] = NULL;
-			}
-			$node['Node']['balance'] = $info['balance'];
-			$node['Node']['blocks'] = $info['blocks'];
-			$node['Node']['connections'] = $info['connections'];
-			$node['Node']['proxy'] = $info['proxy'];
-			$node['Node']['generate'] = $info['generate'];
-			$node['Node']['genproclimit'] = $info['genproclimit'];
-			$node['Node']['difficulty'] = $info['difficulty'];
-			if (isset($info['hashespersec'])) {
-				$node['Node']['khps'] = $info['hashespersec'] / 1000;
-			} else {
-				$node['Node']['khps'] = NULL;
+			// Map $info to $node
+			foreach($info as $key => $item) {
+				if($item !== NULL) {
+					$node['Node'][$key] = $item;
+				} else {
+					$node['Node'][$key] = NULL;
+				}
 			}
 
 			// Obviously getinfo worked, so the node is online
