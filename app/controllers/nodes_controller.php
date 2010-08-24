@@ -5,6 +5,8 @@ class NodesController extends AppController {
 
 	var $helpers = array('Time','Number');
 
+	var $bitcoin;
+
 	function beforeFilter() {
 		parent::beforeFilter();
 		// Include the PHP JSON-RPC client class
@@ -18,8 +20,10 @@ class NodesController extends AppController {
 		foreach ($nodes as &$node) {
 			// If last_update is older than 30s, TODO: change this to a setting saved in the database
 			if (strtotime($node['Node']['last_update']) < time() - 30) {
+				// Connect to the node
+				$this->_connect($node);
 				// Update the node
-				list($node,$bitcoin) = $this->_updatenode($node);
+				$node = $this->_updatenode($node);
 			}
 		}
 		$this->set('nodes', $nodes);
@@ -39,13 +43,15 @@ class NodesController extends AppController {
 			$this->redirect($this->referer());
 		}
 
+		// Connect to the node
+		$this->_connect($node);
 		// Update the node
-		list($node,$bitcoin) = $this->_updatenode($node);
+		$node = $this->_updatenode($node);
 
 		// If the node is online lets populate $transactions
 		if($node['Node']['status'] == 'online') {
 			try {
-				$transactions = $bitcoin->listtransactions(100,0,TRUE);
+				$transactions = $this->bitcoin->listtransactions(100,0,TRUE);
 				if (count($transactions)) {
 					// sorting $transactions may not be necessary, it looks like listtransactions is already sorted based on # of confirmations or by date
 					$sortArray = array();
@@ -174,11 +180,11 @@ class NodesController extends AppController {
 		// We've got form data, lets try to send some bitcoins
 		if ($this->data) {
 			try {
-				// Instantiate a new object for the node. The URI is required when using the relay.php script but we don't have to worry about passing a URI to the actual bitcoin client because it'll just be ignored.
-				$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
+				// Connect to the node
+				$this->_connect($node);
 
 				// Typecasting $this->data['Node']['amount'] to float because that's the only thing that works. This may not be a good idea though.
-				$bitcoin->sendtoaddress($this->data['Node']['address'],(float)$this->data['Node']['amount']);
+				$this->bitcoin->sendtoaddress($this->data['Node']['address'],(float)$this->data['Node']['amount']);
 
 				// Write to the log so we know who is wasting our money				
 				$this->Node->customLog('sendtoaddress', $node['Node']['id'], array('title' => $node['Node']['name'], 'description' => "Node \"{$node['Node']['name']}\" ({$node['Node']['id']}) {$this->data['Node']['amount']} BTC sent to {$this->data['Node']['address']}"));
@@ -215,14 +221,14 @@ class NodesController extends AppController {
 			$this->redirect($this->referer());
 		}
 
+		// Connect to the node
+		$this->_connect($node);
+
 		// No form data, so lets grab the node's generate settings so we can show the user what they are		
 		if (empty($this->data)) {
 			try {
-				// Instantiate a new object for the node. The URI is required when using the relay.php script but we don't have to worry about passing a URI to the actual bitcoin client because it'll just be ignored.
-				$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
-
 				// Too bad getgenerate only shows true/false, so we have to call getinfo and grab just what we need
-				$info = $bitcoin->getinfo();
+				$info = $this->bitcoin->getinfo();
 				$node['Node']['generate'] = $info['generate'];
 				$node['Node']['genproclimit'] = $info['genproclimit'];
 			} catch (Exception $e) {
@@ -234,17 +240,14 @@ class NodesController extends AppController {
 		// We've got form data, so lets try to change the node's generate settings
 		if (!empty($this->data)) {
 			try {
-				// Instantiate a new object for the node. The URI is required when using the relay.php script but we don't have to worry about passing a URI to the actual bitcoin client because it'll just be ignored.
-				$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
-
 				// If generate blocks is checked
 				if ($this->data['Node']['setgenerate']) {
-					$bitcoin->setgenerate(true,(int)$this->data['Node']['genproclimit']);
+					$this->bitcoin->setgenerate(true,(int)$this->data['Node']['genproclimit']);
 
 					// Log that a user changed this node's settings
 					$this->Node->customLog('setgenerate', $node['Node']['id'], array('title' => $node['Node']['name'], 'description' => "Node \"{$node['Node']['name']}\" ({$node['Node']['id']}) setgenerate true {$this->data['Node']['genproclimit']} called"));
 				} else {
-					$bitcoin->setgenerate(false,(int)$this->data['Node']['genproclimit']);
+					$this->bitcoin->setgenerate(false,(int)$this->data['Node']['genproclimit']);
 
 					// Log that a user changed this node's settings
 					$this->Node->customLog('setgenerate', $node['Node']['id'], array('title' => $node['Node']['name'], 'description' => "Node \"{$node['Node']['name']}\" ({$node['Node']['id']}) setgenerate false {$this->data['Node']['genproclimit']} called"));
@@ -275,9 +278,9 @@ class NodesController extends AppController {
 		}
 
 		try {
-			// Instantiate a new object for the node. The URI is required when using the relay.php script but we don't have to worry about passing a URI to the actual bitcoin client because it'll just be ignored.
-			$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
-			$addresses = $bitcoin->listreceivedbyaddress(0,true);
+			// Connect to the node
+			$this->_connect($node);
+			$addresses = $this->bitcoin->listreceivedbyaddress(0,true);
 		} catch (Exception $e) {
 			$this->Session->setFlash(__('Unable to connect to node', true));
 			$this->redirect($this->referer());
@@ -314,12 +317,13 @@ class NodesController extends AppController {
 			$this->redirect($this->referer());
 		}
 
+		// Connect to the node
+		$this->_connect($node);
+
 		// No form data, so lets grab the label for this address
 		if (empty($this->data)) {
 			try {
-				// Instantiate a new object for the node. The URI is required when using the relay.php script but we don't have to worry about passing a URI to the actual bitcoin client because it'll just be ignored.
-				$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
-				$label = $bitcoin->getlabel($address);
+				$label = $this->bitcoin->getlabel($address);
 			} catch (Exception $e) {
 				$this->Session->setFlash(__('Unable to connect to node', true));
 				$this->redirect($this->referer());
@@ -329,9 +333,7 @@ class NodesController extends AppController {
 		// We've got form data, so lets try to set the label for this address
 		if (!empty($this->data)) {
 			try {
-				// Instantiate a new object for the node. The URI is required when using the relay.php script but we don't have to worry about passing a URI to the actual bitcoin client because it'll just be ignored.
-				$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
-				$bitcoin->setlabel($this->data['Node']['address'],$this->data['Node']['label']);
+				$this->bitcoin->setlabel($this->data['Node']['address'],$this->data['Node']['label']);
 
 				// Log that a user changed the label for this address on this node
 				$this->Node->customLog('setlabel', $node['Node']['id'], array('title' => $node['Node']['name'], 'description' => "Node \"{$node['Node']['name']}\" ({$node['Node']['id']}) set label to \"{$this->data['Node']['label']}\" for address \"{$this->data['Node']['address']}\""));
@@ -368,9 +370,9 @@ class NodesController extends AppController {
 		// We have form data, so lets try to generate a new address
 		if ($this->data) {
 			try {
-				// Instantiate a new object for the node. The URI is required when using the relay.php script but we don't have to worry about passing a URI to the actual bitcoin client because it'll just be ignored.
-				$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
-				$address = $bitcoin->getnewaddress($this->data['Node']['label']);
+				// Connect to the node
+				$this->_connect($node);
+				$address = $this->bitcoin->getnewaddress($this->data['Node']['label']);
 
 				// Log that a user created a new address with the following $address and $label
 				$this->Node->customLog('getnewaddress', $node['Node']['id'], array('title' => $node['Node']['name'], 'description' => "Node \"{$node['Node']['name']}\" ({$node['Node']['id']}) newaddress \"{$address}\" created with label \"{$this->data['Node']['label']}\""));
@@ -389,10 +391,8 @@ class NodesController extends AppController {
 			return FALSE;
 		}
 		try {
-			// Instantiate a new object for the node. The URI is required when using the relay.php script but we don't have to worry about passing a URI to the actual bitcoin client because it'll just be ignored.
-			$bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
 			// run getinfo on this node
-			$info = $bitcoin->getinfo();
+			$info = $this->bitcoin->getinfo();
 
 			// Map $info to $node
 			foreach($info as $key => $item) {
@@ -414,20 +414,16 @@ class NodesController extends AppController {
 		if ($node['Node']['status'] == 'online') {
 			try {
 				// we can't just count() because that will include blocks that are not accepted
-				$pending_blocks = $bitcoin->listgenerated(TRUE);
+				$generated_blocks = $this->bitcoin->listgenerated();
 				$node['Node']['pending_blocks'] = 0;
-				foreach ($pending_blocks as $block) {
-					if ($block['accepted']) {
-						$node['Node']['pending_blocks']++;
-					}
-				}
-
-				// we can't just count() because that will include blocks that are not accepted
-				$generated_blocks = $bitcoin->listgenerated();
 				$node['Node']['generated_blocks'] = 0;
 				foreach ($generated_blocks as $block) {
 					if ($block['accepted']) {
-						$node['Node']['generated_blocks']++;
+						if ($block['maturesIn'] == 0) {
+							$node['Node']['generated_blocks']++;
+						} elseif ($block['maturesIn'] > 0) {
+							$node['Node']['pending_blocks']++;
+						}
 					}
 				}
 			} catch (Exception $e) {
@@ -443,7 +439,17 @@ class NodesController extends AppController {
 		$this->Node->Behaviors->detach('Logable');
 		$this->Node->save($node);
 
-		return array($node,$bitcoin);
+		return $node;
+	}
+
+	function _connect($node) {
+		if(!$node) {
+			return FALSE;
+		}
+
+		// Instantiate a new object for the node. The URI is required when using the relay.php script but we don't have to worry about passing a URI to the actual bitcoin client because it'll just be ignored.
+		$this->bitcoin = new jsonRPCClient("http://{$node['Node']['username']}:{$node['Node']['password']}@{$node['Node']['hostname']}:{$node['Node']['port']}/{$node['Node']['uri']}");
+		return TRUE;
 	}
 }
 ?>
