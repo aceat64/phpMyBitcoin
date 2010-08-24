@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS `nodes` (
   `blocks` mediumint(8) unsigned DEFAULT NULL,
   `connections` smallint(5) unsigned DEFAULT NULL,
   `generate` tinyint(1) DEFAULT NULL,
-  `khps` smallint(5) unsigned DEFAULT NULL,
+  `hashespersec` int(11) unsigned DEFAULT NULL,
   `pending_blocks` smallint(5) unsigned DEFAULT NULL,
   `generated_blocks` smallint(5) unsigned DEFAULT NULL,
   `status` varchar(32) DEFAULT NULL,

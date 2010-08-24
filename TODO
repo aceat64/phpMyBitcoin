@@ -9,6 +9,7 @@ TODO List
  * Add per user settings for number of nodes per page
  * Add global setting option for socket timeout
  * Show totals for node balances, khps, pending and generated blocks
+ * Create CakePHP style schema
 
 Things I would like bitcoin's JSON-RPC to support
 -------------------------------------------------
