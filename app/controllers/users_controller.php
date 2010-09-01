@@ -9,6 +9,7 @@ class UsersController extends AppController {
 		$this->Auth->loginRedirect = array('action' => 'logLogin');
 		// Just making sure we default to no recursion
 		$this->User->recursive = 0;
+		$this->Auth->allow('installer');
 	}
 
 	/**
@@ -103,6 +104,21 @@ class UsersController extends AppController {
 		}
 		$this->Session->setFlash(__('User was not deleted', true));
 		$this->redirect(array('action' => 'index'));
+	}
+
+	function installer() {
+		if(!empty($this->data) && Configure::read('Security.salt') == $this->data['User']['salt'] && $this->User->find('count') == 0) {
+			$this->User->create();
+			if ($this->User->save($this->data)) {
+				$this->Session->setFlash(__('The user has been created', true));
+				$this->Auth->login($this->data);
+				$this->redirect(array('controller' => 'nodes'));
+			} else {
+				$this->Session->setFlash(__('The user could not be saved. Please, try again.', true));
+			}
+		} else {
+			$this->cakeError('error404');
+		}
 	}
 }
 ?>

@@ -1,14 +1,14 @@
 phpMyBitcoin
 ============
 
-Installation
-------------
+Quick Install
+-------------
 1. Download the entire project, unzip/untar it and upload to your server
 2. Create a MySQL database and user
-3. Modify the app/config/database.php file and put in the database name, username and password
-4. Import the basic MySQL database from the file app/config/schema/database.sql
-5. Login to with the user "admin" and password "password".
-6. Change the admin password or create a new user then delete the admin user.
+3. Open install.php in your browser
+4. Put in your MySQL information
+5. Create the first user
+6. Add nodes
 
 License
 -------

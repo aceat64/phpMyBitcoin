@@ -74,13 +74,13 @@
 class DATABASE_CONFIG {
 
 	var $default = array(
-		'driver' => 'mysql',
+		'driver' => '__DRIVER__',
 		'persistent' => false,
-		'host' => 'localhost',
-		'login' => 'phpmybitcoin',
-		'password' => 'password',
-		'database' => 'phpmybitcoin',
-		'prefix' => '',
+		'host' => '__HOSTNAME__',
+		'login' => '__USERNAME__',
+		'password' => '__PASSWORD__',
+		'database' => '__DATABASE__',
+		'prefix' => '__PREFIX__',
 	);
 
 }

@@ -3,13 +3,13 @@ TODO List
  * Add an ACL (Access Control List)
  * Statistics for the network as a whole
  * Better support for mobile devices (iPhone, Android, etc)
- * Write a basic installer
  * Rewrite JSON-RPC PHP library as a component (or a datasource?)
  * A good design, instead of cakephp's default layout/stylesheet
  * Add per user settings for number of nodes per page
  * Add global setting option for socket timeout
  * Show totals for node balances, khps, pending and generated blocks
- * Create CakePHP style schema
+ * Show something when Bitcoin's alert system is activated
+ * Encrypt node passwords saved in database
 
 Things I would like bitcoin's JSON-RPC to support
 -------------------------------------------------

@@ -85,12 +85,4 @@ CREATE TABLE IF NOT EXISTS `users` (
   `username` char(64) DEFAULT NULL,
   `password` char(64) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
-
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`id`, `username`, `password`) VALUES
-(1, 'admin', '43d6b5c4a8506d7209f054debc6cf654d65fa02947aa83321484d49d35d9ea7e');
-
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
