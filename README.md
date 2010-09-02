@@ -19,10 +19,12 @@ must be able to connect to the node's JSON-RPC interface.
 I've created a custom version of Bitcoin that includes patches for
 listgenerated, listtransactions and binds the JSON-RPC interface to all IPs
 instead of just the loopback. You can find the source code here:
-http://github.com/aceat64/bitcoin-patchwork
+
+[http://github.com/aceat64/bitcoin-patchwork](http://github.com/aceat64/bitcoin-patchwork)
 
 I also have pre-compiled binaries for Linux available:
-http://github.com/aceat64/bitcoin-patchwork/downloads
+
+[http://github.com/aceat64/bitcoin-patchwork/downloads](http://github.com/aceat64/bitcoin-patchwork/downloads)
 
 Using The Vanilla Bitcoin Client
 --------------------------------
@@ -40,9 +42,10 @@ relay connections to the loopback interface. Setup is very simpile, just drop
 the relay.php script somewhere accessible from the internet. When adding the
 node to phpMyBitcoin if your relay.php script is accessible at
 "http://somesite.com/relay.php" your settings will be:
-Hostname: somesite.com
-Port: 80
-URI: relay.php
+
+> Hostname: somesite.com
+> Port: 80
+> URI: relay.php
 
 License
 -------
