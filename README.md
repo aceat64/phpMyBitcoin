@@ -43,9 +43,9 @@ the relay.php script somewhere accessible from the internet. When adding the
 node to phpMyBitcoin if your relay.php script is accessible at
 "http://somesite.com/relay.php" your settings will be:
 
-> Hostname: somesite.com
-> Port: 80
-> URI: relay.php
+	Hostname: somesite.com
+	Port: 80
+	URI: relay.php
 
 License
 -------
